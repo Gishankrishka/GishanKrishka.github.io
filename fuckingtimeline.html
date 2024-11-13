@@ -238,10 +238,16 @@
 
     setInterval(updateCountdown, 1); // Update every millisecond
     const cursor = document.getElementById('cursor');
+
+// Hide cursor on mobile devices
+    if (/Mobi|Android/i.test(navigator.userAgent)) {
+      cursor.style.display = 'none'; // Hide cursor on mobile
+    } else {
       document.addEventListener('mousemove', (e) => {
         cursor.style.left = e.pageX + 'px';
         cursor.style.top = e.pageY + 'px';
       });
+    }
   </script>
 
       <!-- / END SCROOL UP DESIGN AREA -->
