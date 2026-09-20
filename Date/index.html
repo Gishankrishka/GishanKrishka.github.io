@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Go Out With Me?</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        cream: '#FBF8F3',
+                        cardBg: '#FFFFFF',
+                        brandRed: '#D34E4E',
+                        brandGreen: '#BCE3C5',
+                        brandGreenDark: '#2D5235',
+                        brandPink: '#FFF0F0',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f7f3ed;
+            background-image: radial-gradient(#e5dfd5 1px, transparent 1px);
+            background-size: 24px 24px;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+
+        .serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Flower line animation */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(3deg); }
+        }
+
+        .flower-float {
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+
+        /* Pulse glow for YES button */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(188, 227, 197, 0.7); }
+            50% { box-shadow: 0 0 0 14px rgba(188, 227, 197, 0); }
+        }
+
+        .pulse-btn {
+            animation: pulseGlow 2s infinite;
+        }
+
+        /* Heart floating animation */
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(0.8) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-120px) scale(1.2) rotate(20deg);
+                opacity: 0;
+            }
+        }
+
+        .floating-heart {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp 2.5s ease-out forwards;
+        }
+
+        /* Dodging button smooth shift */
+        #no-btn {
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        .screen-transition {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        /* Custom scrollbar for letter */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2d9cd;
+            border-radius: 10px;
+        }
+
+        /* Confetti canvas overlay */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-6 relative text-gray-800">
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- MAIN CARD CONTAINER -->
+    <main class="w-full max-w-md bg-white rounded-3xl shadow-xl border border-stone-200/80 p-6 sm:p-8 relative z-10 overflow-hidden min-h-[520px] flex flex-col justify-between transition-all duration-300">
+        
+        <!-- HEADER BADGE & DODGE COUNTER -->
+        <div class="flex items-center justify-between w-full mb-4">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-100 text-xs font-semibold text-red-500 uppercase tracking-wider">
+                <span class="text-xs">🌸</span>
+                <span id="badge-text">BUILD WITH LOVE</span>
+            </div>
+
+            <div id="dodge-counter" class="opacity-0 transition-opacity duration-300 px-2.5 py-1 rounded-full bg-stone-100 text-xs font-medium text-stone-500">
+                <span id="dodge-count">0</span> dodges
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 1: THE ASK (WILL YOU GO OUT WITH ME) -->
+        <!-- ========================================== -->
+        <section id="screen-1" class="screen-transition flex-1 flex flex-col items-center justify-between text-center">
+            <div class="space-y-1 mt-2">
+                <p class="text-xs font-bold tracking-widest text-stone-400 uppercase">A Tiny Ask</p>
+                <h1 class="serif-title text-3xl sm:text-4xl font-bold text-stone-900 leading-tight">
+                    Will you go<br/>out with me?
+                </h1>
+                <p id="sub-commentary" class="text-sm text-stone-500 font-medium h-6 transition-all duration-200">
+                    Catch No if you can.
+                </p>
+            </div>
+
+            <!-- FLOWER ILLUSTRATION -->
+            <div class="my-6 relative flex items-center justify-center w-40 h-40 flower-float">
+                <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-sm" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Stem -->
+                    <path d="M100 130 C 95 160, 105 180, 100 200" stroke="#7CA982" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <!-- Leaf -->
+                    <path d="M101 160 C 120 150, 125 165, 101 170" fill="#CDE7CE" stroke="#7CA982" stroke-width="2"/>
+                    
+                    <!-- Petals Overlapping -->
+                    <g opacity="0.85">
+                        <path d="M100 100 C 70 40, 130 40, 100 100" fill="#F8B195" stroke="#E87A5D" stroke-width="2"/>
+                        <path d="M100 100 C 160 70, 160 130, 100 100" fill="#F67280" stroke="#D94343" stroke-width="2"/>
+                        <path d="M100 100 C 130 160, 70 160, 100 100" fill="#C06C84" stroke="#A8436B" stroke-width="2"/>
+                        <path d="M100 100 C 40 130, 40 70, 100 100" fill="#F8C291" stroke="#E58E26" stroke-width="2"/>
+                        <path d="M100 100 C 60 50, 60 110, 100 100" fill="#FCE4EC" stroke="#F06292" stroke-width="2"/>
+                    </g>
+                    <!-- Center Flower Core -->
+                    <circle cx="100" cy="100" r="14" fill="#FFEAA7" stroke="#FDCB6E" stroke-width="2"/>
+                    <circle cx="100" cy="100" r="6" fill="#FDCB6E"/>
+                </svg>
+            </div>
+
+            <!-- BUTTON ACTIONS AREA -->
+            <div class="w-full space-y-3 relative min-h-[90px] flex flex-col justify-end">
+                <button id="yes-btn" onclick="goToScreen2()" class="w-full py-4 px-6 rounded-2xl bg-[#D2EBD4] hover:bg-[#C2E3C5] active:scale-[0.98] text-[#1D3A20] font-bold text-xl tracking-wide shadow-sm transition-all pulse-btn flex items-center justify-center gap-2">
+                    YES
+                </button>
+
+                <!-- DODGING NO BUTTON CONTAINER -->
+                <div id="no-btn-wrapper" class="w-full flex justify-center">
+                    <button id="no-btn" onmouseover="dodgeNoButton()" onclick="dodgeNoButton()" class="px-5 py-2 rounded-xl border border-stone-200 bg-white text-stone-500 text-sm font-medium hover:bg-stone-50 active:scale-95 shadow-sm">
+                        No
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 2: DATE CONFIRMED                   -->
+        <!-- ========================================== -->
+        <section id="screen-2" class="screen-transition hidden flex-1 flex-col items-center justify-between text-center">
+            <div class="space-y-1 mt-2">
+                <h1 class="serif-title text-3xl sm:text-4xl font-bold text-stone-900 leading-tight">
+                    Yay — it's a date.
+                </h1>
+            </div>
+
+            <!-- BLOOMING FLOWER WITH SPARKLES -->
+            <div class="my-6 relative flex items-center justify-center w-44 h-44">
+                <div class="absolute inset-0 bg-pink-100 rounded-full blur-xl opacity-50 animate-pulse"></div>
+                <svg viewBox="0 0 200 200" class="w-full h-full relative z-10 flower-float drop-shadow-md" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M100 120 C 95 150, 105 180, 100 200" stroke="#7CA982" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <path d="M101 150 C 125 140, 130 160, 101 165" fill="#BCE3C5" stroke="#7CA982" stroke-width="2"/>
+                    <!-- Bloomed petals -->
+                    <g opacity="0.95">
+                        <path d="M100 90 C 60 20, 140 20, 100 90" fill="#FFB7B2" stroke="#E87A5D" stroke-width="2"/>
+                        <path d="M100 90 C 170 50, 170 130, 100 90" fill="#FFDAC1" stroke="#E58E26" stroke-width="2"/>
+                        <path d="M100 90 C 140 160, 60 160, 100 90" fill="#E2F0CB" stroke="#7CA982" stroke-width="2"/>
+                        <path d="M100 90 C 30 130, 30 50, 100 90" fill="#B5EAD7" stroke="#55E6C1" stroke-width="2"/>
+                        <path d="M100 90 C 50 30, 150 30, 100 90" fill="#C7CEEA" stroke="#9B59B6" stroke-width="2"/>
+                    </g>
+                    <circle cx="100" cy="90" r="16" fill="#FFEAA7" stroke="#FDCB6E" stroke-width="2"/>
+                    <circle cx="100" cy="90" r="7" fill="#FDCB6E"/>
+                </svg>
+            </div>
+
+            <p class="text-sm font-medium text-stone-600">
+                I knew you had great taste 😎
+            </p>
+
+            <!-- ACTION BUTTON WITH FLOATING HEARTS EFFECT -->
+            <div class="w-full mt-6 relative" id="heart-btn-container">
+                <button onclick="goToScreen3()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-red-400 to-pink-500 hover:from-red-500 hover:to-pink-600 text-white font-bold text-lg tracking-wide shadow-lg shadow-pink-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <span>Now let's plan it</span>
+                    <span class="text-xl">→ 📝</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 3: PICK THE DAY, TIME & PLAN        -->
+        <!-- ========================================== -->
+        <section id="screen-3" class="screen-transition hidden flex-1 flex-col justify-between text-left">
+            <div class="space-y-4">
+                <h1 class="serif-title text-2xl sm:text-3xl font-bold text-stone-900 text-center">
+                    Pick the day,<br/>time & plan
+                </h1>
+
+                <!-- DATE & TIME INPUTS -->
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <div>
+                        <label class="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Which Day?</label>
+                        <input type="date" id="date-input" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 focus:outline-none focus:ring-2 focus:ring-red-300">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">What Time?</label>
+                        <input type="time" id="time-input" value="20:00" class="w-full px-3 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 focus:outline-none focus:ring-2 focus:ring-red-300">
+                    </div>
+                </div>
+
+                <!-- PLAN OPTIONS PILLS -->
+                <div>
+                    <label class="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2">The Plan</label>
+                    <div class="grid grid-cols-2 gap-2" id="plan-options">
+                        <button type="button" onclick="selectPlan(this, '☕ Coffee')" class="plan-pill border border-stone-200 bg-stone-50/80 hover:bg-stone-100 text-stone-700 text-xs font-medium py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                            <span>☕</span> Coffee
+                        </button>
+                        <button type="button" onclick="selectPlan(this, '🎬 A movie')" class="plan-pill border border-stone-200 bg-stone-50/80 hover:bg-stone-100 text-stone-700 text-xs font-medium py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                            <span>🎬</span> A movie
+                        </button>
+                        <button type="button" onclick="selectPlan(this, '🍝 Dinner')" class="plan-pill border-2 border-red-400 bg-red-50 text-red-600 text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all active-plan">
+                            <span>🍝</span> Dinner
+                        </button>
+                        <button type="button" onclick="selectPlan(this, '🌳 Walk in the park')" class="plan-pill border border-stone-200 bg-stone-50/80 hover:bg-stone-100 text-stone-700 text-xs font-medium py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                            <span>🌳</span> Walk in park
+                        </button>
+                        <button type="button" onclick="selectPlan(this, '🍸 Drinks')" class="plan-pill border border-stone-200 bg-stone-50/80 hover:bg-stone-100 text-stone-700 text-xs font-medium py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                            <span>🍸</span> Drinks
+                        </button>
+                        <button type="button" onclick="selectPlan(this, '🎁 Surprise me')" class="plan-pill border border-stone-200 bg-stone-50/80 hover:bg-stone-100 text-stone-700 text-xs font-medium py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                            <span>🎁</span> Surprise me
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="goToScreen4()" class="w-full mt-6 py-3.5 px-6 rounded-2xl bg-[#D2EBD4] hover:bg-[#C2E3C5] active:scale-[0.98] text-[#1D3A20] font-bold text-base tracking-wide shadow-sm transition-all flex items-center justify-center gap-2">
+                <span>Seal it with a letter</span>
+                <span>♥</span>
+            </button>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 4: A LITTLE LETTER FOR YOU          -->
+        <!-- ========================================== -->
+        <section id="screen-4" class="screen-transition hidden flex-1 flex-col justify-between text-left">
+            <!-- MINI OVERVIEW PILLS -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 text-[11px] font-semibold text-stone-600">
+                <span class="bg-stone-100 px-2.5 py-1 rounded-lg flex items-center gap-1 whitespace-nowrap">
+                    📅 <span id="summary-date">Sat, Sep 26</span>
+                </span>
+                <span class="bg-stone-100 px-2.5 py-1 rounded-lg flex items-center gap-1 whitespace-nowrap">
+                    ⏰ <span id="summary-time">8:00 PM</span>
+                </span>
+                <span class="bg-stone-100 px-2.5 py-1 rounded-lg flex items-center gap-1 whitespace-nowrap">
+                    <span id="summary-plan">🍝 Dinner</span>
+                </span>
+            </div>
+
+            <!-- LETTER CONTAINER CARD -->
+            <div class="my-3 p-5 rounded-2xl bg-amber-50/50 border border-amber-100/80 text-stone-800 space-y-3 text-sm leading-relaxed relative shadow-inner">
+                <div class="absolute -top-3 -right-2 text-2xl">💌</div>
+                <p class="font-bold text-stone-900">Dear you,</p>
+                <p>So... it's official. It's a date! 💫</p>
+                <p class="text-xs sm:text-sm text-stone-700">
+                    Let's meet <strong id="letter-date-str" class="text-stone-900">Saturday, Sep 26</strong> at <strong id="letter-time-str" class="text-stone-900">8:00 PM</strong>, for <strong id="letter-plan-str" class="text-stone-900">Dinner</strong>.
+                </p>
+                <p class="text-xs sm:text-sm text-stone-600 italic">
+                    I promise good vibes, terrible jokes, and my very best self.
+                </p>
+                <p class="text-xs sm:text-sm text-stone-700">
+                    I already can't stop smiling. See you there.
+                </p>
+                <div class="pt-1 text-xs">
+                    <p class="text-stone-500">Yours (a little nervously),</p>
+                    <p class="font-bold text-red-500 text-sm">— Me ❤️</p>
+                </div>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="space-y-2 pt-1">
+                <button onclick="sendToWhatsApp()" class="w-full py-3.5 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white font-bold text-sm tracking-wide shadow-md shadow-emerald-200 transition-all flex items-center justify-center gap-2">
+                    <span>Send via WhatsApp (+94 76 928 2385)</span>
+                    <span>💬</span>
+                </button>
+
+                <button onclick="sendViaSMS()" class="w-full py-2.5 px-6 rounded-2xl bg-stone-800 hover:bg-stone-900 active:scale-[0.98] text-white font-semibold text-xs tracking-wide shadow-sm transition-all flex items-center justify-center gap-2">
+                    <span>Send via SMS</span>
+                    <span>📱</span>
+                </button>
+
+                <button onclick="shareGoodNews()" class="w-full py-2 text-stone-500 hover:text-stone-700 text-xs font-semibold transition-colors flex items-center justify-center gap-1">
+                    <span>Copy Letter Text</span> 📋
+                </button>
+
+                <button onclick="resetApp()" class="w-full py-1 text-stone-400 hover:text-stone-600 text-xs font-semibold transition-colors flex items-center justify-center gap-1">
+                    <span>Exit</span> ↺
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 bg-stone-900 text-white px-5 py-2.5 rounded-full text-xs font-medium shadow-2xl transition-all duration-300 opacity-0 transform translate-y-4 pointer-events-none z-50 flex items-center gap-2">
+        <span>💌 Letter details copied to clipboard!</span>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        
+        let dodgeCount = 0;
+        let selectedPlanText = "Dinner";
+        const TARGET_PHONE_WA = "94769282385";
+        const TARGET_PHONE_SMS = "+94769282385";
+        
+        const dodgeQuotes = [
+            "Nice try — it dodged you.",
+            "Faster than romance.",
+            "No is willing...",
+            "Yes is blooming, hm? 🌸",
+            "So shy.",
+            "Almost got it!",
+            "Nope, over here!",
+            "Give up yet? 😉"
+        ];
+
+        const noBtnTexts = [
+            "No", "Sure?", "Wait—", "Think again!", "Last chance!", "Nice try 😜", "hehe", "No way"
+        ];
+
+        // Initialize default dates
+        window.onload = function() {
+            const dateInput = document.getElementById('date-input');
+            const today = new Date();
+            // Default to next Saturday
+            const nextSat = new Date();
+            nextSat.setDate(today.getDate() + ((6 - today.getDay() + 7) % 7 || 7));
+            
+            dateInput.value = nextSat.toISOString().split('T')[0];
+            
+            // Start heart floating effect background interval
+            setInterval(spawnBackgroundHeart, 800);
+        };
+
+        function dodgeNoButton() {
+            dodgeCount++;
+            
+            // Show dodge counter
+            const counterEl = document.getElementById('dodge-counter');
+            const countTextEl = document.getElementById('dodge-count');
+            counterEl.classList.remove('opacity-0');
+            countTextEl.innerText = dodgeCount;
+
+            // Change commentary
+            const quoteIndex = Math.min(dodgeCount - 1, dodgeQuotes.length - 1);
+            document.getElementById('sub-commentary').innerText = dodgeQuotes[quoteIndex];
+
+            // Change button text
+            const btnTextIndex = Math.min(dodgeCount, noBtnTexts.length - 1);
+            const noBtn = document.getElementById('no-btn');
+            noBtn.innerText = noBtnTexts[btnTextIndex];
+
+            // Calculate random movement within parent wrapper bounds
+            const xShift = (Math.random() - 0.5) * 220;
+            const yShift = (Math.random() - 0.5) * 120;
+            
+            noBtn.style.transform = `translate(${xShift}px, ${yShift}px) scale(${Math.max(0.7, 1 - dodgeCount * 0.04)})`;
+        }
+
+        function switchScreen(fromId, toId, badgeText = "BUILD WITH LOVE") {
+            const fromEl = document.getElementById(fromId);
+            const toEl = document.getElementById(toId);
+
+            fromEl.classList.add('opacity-0', '-translate-y-2');
+            setTimeout(() => {
+                fromEl.classList.add('hidden');
+                fromEl.classList.remove('opacity-0', '-translate-y-2');
+
+                toEl.classList.remove('hidden');
+                toEl.classList.add('flex');
+                
+                document.getElementById('badge-text').innerText = badgeText;
+            }, 300);
+        }
+
+        function goToScreen2() {
+            switchScreen('screen-1', 'screen-2', 'DATE CONFIRMED');
+            triggerConfetti();
+        }
+
+        function goToScreen3() {
+            switchScreen('screen-2', 'screen-3', "LET'S MAKE IT OFFICIAL");
+        }
+
+        function goToScreen4() {
+            // Update summary variables
+            const rawDate = document.getElementById('date-input').value;
+            const rawTime = document.getElementById('time-input').value;
+
+            // Format date nicely
+            let formattedDate = "Upcoming Day";
+            if (rawDate) {
+                const dateObj = new Date(rawDate + 'T00:00:00');
+                const options = { weekday: 'short', month: 'short', day: 'numeric' };
+                formattedDate = dateObj.toLocaleDateString('en-US', options);
+            }
+
+            // Format time nicely
+            let formattedTime = rawTime || "8:00 PM";
+            if (rawTime) {
+                const [hours, minutes] = rawTime.split(':');
+                const h = parseInt(hours, 10);
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const formattedH = h % 12 || 12;
+                formattedTime = `${formattedH}:${minutes} ${ampm}`;
+            }
+
+            // Populate Letter
+            document.getElementById('summary-date').innerText = formattedDate;
+            document.getElementById('summary-time').innerText = formattedTime;
+            document.getElementById('summary-plan').innerText = selectedPlanText;
+
+            document.getElementById('letter-date-str').innerText = formattedDate;
+            document.getElementById('letter-time-str').innerText = formattedTime;
+            document.getElementById('letter-plan-str').innerText = selectedPlanText.replace(/^[^\s]+\s/, ''); // strip emoji
+
+            switchScreen('screen-3', 'screen-4', 'A LITTLE LETTER FOR YOU');
+            triggerConfetti();
+        }
+
+        function selectPlan(btnElement, planName) {
+            // Remove active style from all pills
+            document.querySelectorAll('.plan-pill').forEach(btn => {
+                btn.className = "plan-pill border border-stone-200 bg-stone-50/80 hover:bg-stone-100 text-stone-700 text-xs font-medium py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all";
+            });
+
+            // Set active style to clicked pill
+            btnElement.className = "plan-pill border-2 border-red-400 bg-red-50 text-red-600 text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all active-plan";
+            selectedPlanText = planName;
+        }
+
+        function resetApp() {
+            dodgeCount = 0;
+            document.getElementById('dodge-counter').classList.add('opacity-0');
+            document.getElementById('sub-commentary').innerText = "Catch No if you can.";
+            const noBtn = document.getElementById('no-btn');
+            noBtn.style.transform = 'none';
+            noBtn.innerText = 'No';
+
+            switchScreen('screen-4', 'screen-1', 'BUILD WITH LOVE');
+        }
+
+        function getFormattedMessage() {
+            const dateStr = document.getElementById('summary-date').innerText;
+            const timeStr = document.getElementById('summary-time').innerText;
+            return `Hi! It's official — we're going out! 💌\n\n📅 Date: ${dateStr}\n⏰ Time: ${timeStr}\n🍝 Plan: ${selectedPlanText}\n\nSee you there! ❤️`;
+        }
+
+        function sendToWhatsApp() {
+            const text = getFormattedMessage();
+            const url = `https://wa.me/${TARGET_PHONE_WA}?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+            triggerConfetti();
+        }
+
+        function sendViaSMS() {
+            const text = getFormattedMessage();
+            const url = `sms:${TARGET_PHONE_SMS}?body=${encodeURIComponent(text)}`;
+            window.location.href = url;
+            triggerConfetti();
+        }
+
+        function shareGoodNews() {
+            const letterText = getFormattedMessage();
+            
+            // Clipboard copy fallbacks
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(letterText);
+            } else {
+                const textInput = document.createElement('textarea');
+                textInput.value = letterText;
+                document.body.appendChild(textInput);
+                textInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(textInput);
+            }
+
+            // Show Toast
+            const toast = document.getElementById('toast');
+            toast.classList.remove('opacity-0', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-4');
+            }, 2500);
+
+            triggerConfetti();
+        }
+
+        function spawnBackgroundHeart() {
+            const container = document.body;
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart text-lg';
+            heart.innerText = ['❤️', '💖', '✨', '🌸', '💕'][Math.floor(Math.random() * 5)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.bottom = '-20px';
+            heart.style.animationDuration = (2 + Math.random() * 2) + 's';
+            container.appendChild(heart);
+
+            setTimeout(() => heart.remove(), 3500);
+        }
+
+        // Custom particle confetti system
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function triggerConfetti() {
+            const colors = ['#F8B195', '#F67280', '#C06C84', '#6C5CE7', '#FDCB6E', '#00B894'];
+            for (let i = 0; i < 60; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.8) * 12,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    rv: (Math.random() - 0.5) * 10,
+                    life: 1
+                });
+            }
+        }
+
+        function renderParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.25; // Gravity
+                p.rotation += p.rv;
+                p.life -= 0.015;
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.rotation * Math.PI) / 180);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+
+                if (p.life <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+            requestAnimationFrame(renderParticles);
+        }
+        renderParticles();
+    </script>
+</body>
+</html>
