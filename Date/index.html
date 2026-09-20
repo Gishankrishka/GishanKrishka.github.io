@@ -320,18 +320,14 @@
 
             <!-- ACTION BUTTONS -->
             <div class="space-y-2 pt-1">
-                <button onclick="sendToWhatsApp()" class="w-full py-3.5 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white font-bold text-sm tracking-wide shadow-md shadow-emerald-200 transition-all flex items-center justify-center gap-2">
-                    <span>Send via WhatsApp (+94 76 928 2385)</span>
-                    <span>💬</span>
+                <button onclick="sendToWhatsApp()" class="w-full py-3.5 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white font-bold text-base tracking-wide shadow-md shadow-emerald-200 transition-all flex items-center justify-center gap-2">
+                    <span>Send via WhatsApp</span>
+                    <span class="text-lg">💬</span>
                 </button>
 
-                <button onclick="sendViaSMS()" class="w-full py-2.5 px-6 rounded-2xl bg-stone-800 hover:bg-stone-900 active:scale-[0.98] text-white font-semibold text-xs tracking-wide shadow-sm transition-all flex items-center justify-center gap-2">
-                    <span>Send via SMS</span>
-                    <span>📱</span>
-                </button>
-
-                <button onclick="shareGoodNews()" class="w-full py-2 text-stone-500 hover:text-stone-700 text-xs font-semibold transition-colors flex items-center justify-center gap-1">
-                    <span>Copy Letter Text</span> 📋
+                <button onclick="shareGoodNews()" class="w-full py-2.5 px-6 rounded-2xl bg-stone-100 hover:bg-stone-200 active:scale-[0.98] text-stone-700 text-xs font-semibold transition-all flex items-center justify-center gap-2">
+                    <span>Copy Letter Text</span>
+                    <span>📋</span>
                 </button>
 
                 <button onclick="resetApp()" class="w-full py-1 text-stone-400 hover:text-stone-600 text-xs font-semibold transition-colors flex items-center justify-center gap-1">
@@ -349,11 +345,9 @@
 
     <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
-        
         let dodgeCount = 0;
         let selectedPlanText = "Dinner";
         const TARGET_PHONE_WA = "94769282385";
-        const TARGET_PHONE_SMS = "+94769282385";
         
         const dodgeQuotes = [
             "Nice try — it dodged you.",
@@ -492,28 +486,23 @@
             switchScreen('screen-4', 'screen-1', 'BUILD WITH LOVE');
         }
 
-        function getFormattedMessage() {
-            const dateStr = document.getElementById('summary-date').innerText;
-            const timeStr = document.getElementById('summary-time').innerText;
-            return `Hi! It's official — we're going out! 💌\n\n📅 Date: ${dateStr}\n⏰ Time: ${timeStr}\n🍝 Plan: ${selectedPlanText}\n\nSee you there! ❤️`;
+        function getLetterText() {
+            const dateStr = document.getElementById('letter-date-str').innerText;
+            const timeStr = document.getElementById('letter-time-str').innerText;
+            const planStr = document.getElementById('letter-plan-str').innerText;
+
+            return `Dear you,\n\nSo... it's official. It's a date! 💫\n\nLet's meet ${dateStr} at ${timeStr}, for ${planStr}.\n\nI promise good vibes, terrible jokes, and my very best self.\n\nI already can't stop smiling. See you there.\n\nYours (a little nervously),\n— Me ❤️`;
         }
 
         function sendToWhatsApp() {
-            const text = getFormattedMessage();
+            const text = getLetterText();
             const url = `https://wa.me/${TARGET_PHONE_WA}?text=${encodeURIComponent(text)}`;
             window.open(url, '_blank');
             triggerConfetti();
         }
 
-        function sendViaSMS() {
-            const text = getFormattedMessage();
-            const url = `sms:${TARGET_PHONE_SMS}?body=${encodeURIComponent(text)}`;
-            window.location.href = url;
-            triggerConfetti();
-        }
-
         function shareGoodNews() {
-            const letterText = getFormattedMessage();
+            const letterText = getLetterText();
             
             // Clipboard copy fallbacks
             if (navigator.clipboard && navigator.clipboard.writeText) {
